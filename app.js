@@ -51,6 +51,7 @@ app.use((req, res, next) => {
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
+
 app.use((error, req, res, next) => {
   console.log(error);
 
@@ -65,7 +66,12 @@ mongoose
     "mongodb+srv://salman:Demo1234@cluster0-hfefl.mongodb.net/messages?authSource=admin&replicaSet=Cluster0-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"
   )
   .then((result) => {
-    app.listen(8080);
+    const server  = app.listen(8080);
+    const io = require('./socket').init(server);
+    io.on('connection',socket=>{
+      console.log('client connected')
+    })
+
   })
   .catch((err) => {
     console.log("mongo:", err);
