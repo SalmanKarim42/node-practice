@@ -20,11 +20,11 @@ exports.signup = async (req, res, next) => {
       name,
       password: hashPassword,
     });
-    const user = await user.save();
+    const result = await user.save();
 
     res.status(201).json({
       message: "User created!",
-      userId: user._id,
+      userId: result._id,
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -37,14 +37,13 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const  loadedUser = await User.findOne({ email });
-    if (!user) {
+    const loadedUser = await User.findOne({ email });
+    if (!loadedUser) {
       const error = new Error("A user with this email could not be found ");
       error.statusCode = 401;
       throw error;
     }
-    loadedUser = user;
-    const isEqual = await bcrypt.compare(password, user.password);
+    const isEqual = await bcrypt.compare(password, loadedUser.password);
 
     if (!isEqual) {
       const error = new Error("Wrong password");
