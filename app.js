@@ -2,6 +2,7 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const helmet = require('helmet')
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session); // storing session to db
@@ -55,6 +56,8 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   } else cb(null, false);
 };
+
+app.use(helmet());
 
 app.use(bodyParser.urlencoded({ extended: false })); // only for text data
 app.use(
