@@ -2,7 +2,7 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const helmet = require('helmet')
+const helmet = require('helmet') // for response header security :-)
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session); // storing session to db
@@ -11,6 +11,7 @@ const csrf = require("csurf");
 const flash = require("connect-flash");
 require('dotenv').config()
 const multer = require("multer");
+const compression = require('compression') // for compress assets files 
 const MONGODBURI =
   `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-hfefl.mongodb.net/${process.env.MONOG_DB}?retryWrites=true&w=majority`;
 
@@ -57,7 +58,8 @@ const fileFilter = (req, file, cb) => {
   } else cb(null, false);
 };
 
-app.use(helmet());
+app.use(helmet()); // helmet 
+app.use(compression()); // compression
 
 app.use(bodyParser.urlencoded({ extended: false })); // only for text data
 app.use(
