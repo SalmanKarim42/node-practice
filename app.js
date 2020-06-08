@@ -8,9 +8,10 @@ const mongoDBStore = require("connect-mongodb-session")(session); // storing ses
 const app = express();
 const csrf = require("csurf");
 const flash = require("connect-flash");
+require('dotenv').config()
 const multer = require("multer");
 const MONGODBURI =
-  "mongodb+srv://salman:Demo1234@cluster0-hfefl.mongodb.net/shop?retryWrites=true&w=majority";
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-hfefl.mongodb.net/${process.env.MONOG_DB}?retryWrites=true&w=majority`;
 
 // session collection setting in db
 const store = new mongoDBStore({
@@ -118,7 +119,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODBURI)
   .then((result) => {
-    app.listen(3000);
+    app.listen( process.env.PORT ||3000);
   })
   .catch((err) => {
     console.log("error", err);
