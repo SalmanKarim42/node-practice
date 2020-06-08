@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const https = require("https");
 const express = require("express");
 const bodyParser = require("body-parser");
 const helmet = require("helmet"); // helmet for response header security :-)
@@ -23,6 +24,9 @@ const store = new mongoDBStore({
 // session collection setting in db end
 
 const csrfProtection = csrf();
+
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -68,10 +72,12 @@ const accessLogStream = fs.createWriteStream(
 
 app.use(helmet()); // helmet
 app.use(compression()); // compression
-// app.use(morgan("combined")); // morgan only show in console 
-app.use(morgan("combined",{
-  stream:accessLogStream
-})); // morgan storing in custom log file accessLogStream 
+// app.use(morgan("combined")); // morgan only show in console
+app.use(
+  morgan("combined", {
+    stream: accessLogStream,
+  })
+); // morgan storing in custom log file accessLogStream
 app.use(bodyParser.urlencoded({ extended: false })); // only for text data
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
@@ -134,6 +140,16 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODBURI)
   .then((result) => {
+    // https
+    //   .createServer(
+    //     {
+    //       key: privateKey,
+    //       cert: certificate,
+    //     },
+    //     app
+    //   )
+    //   .listen(process.env.PORT || 3000);
+
     app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
