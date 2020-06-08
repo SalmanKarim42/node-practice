@@ -1,19 +1,19 @@
 const path = require("path");
-
+const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
-const helmet = require('helmet') // for response header security :-)
+const helmet = require("helmet"); // helmet for response header security :-)
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongoDBStore = require("connect-mongodb-session")(session); // storing session to db
 const app = express();
 const csrf = require("csurf");
 const flash = require("connect-flash");
-require('dotenv').config()
+require("dotenv").config();
 const multer = require("multer");
-const compression = require('compression') // for compress assets files 
-const MONGODBURI =
-  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-hfefl.mongodb.net/${process.env.MONOG_DB}?retryWrites=true&w=majority`;
+const compression = require("compression"); // compression for compress assets files
+const morgan = require("morgan"); // morgan for logging req
+const MONGODBURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-hfefl.mongodb.net/${process.env.MONOG_DB}?retryWrites=true&w=majority`;
 
 // session collection setting in db
 const store = new mongoDBStore({
@@ -58,9 +58,20 @@ const fileFilter = (req, file, cb) => {
   } else cb(null, false);
 };
 
-app.use(helmet()); // helmet 
-app.use(compression()); // compression
+// creating file for storing logs
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  {
+    flags: "a", // append new data in the file flage
+  }
+);
 
+app.use(helmet()); // helmet
+app.use(compression()); // compression
+// app.use(morgan("combined")); // morgan only show in console 
+app.use(morgan("combined",{
+  stream:accessLogStream
+})); // morgan storing in custom log file accessLogStream 
 app.use(bodyParser.urlencoded({ extended: false })); // only for text data
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
@@ -97,7 +108,6 @@ app.use((req, res, next) => {
     });
 });
 
-
 app.post("/create-order", isAuth, shopController.postOrder);
 
 app.use(csrfProtection); // applying csrf protection  using package csurf
@@ -124,7 +134,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODBURI)
   .then((result) => {
-    app.listen( process.env.PORT ||3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log("error", err);
