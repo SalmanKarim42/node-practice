@@ -64,6 +64,10 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(
     "mongodb+srv://salman:Demo1234@cluster0-hfefl.mongodb.net/messages?authSource=admin&replicaSet=Cluster0-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"
+    ,{
+      useNewUrlParser:true,
+      useUnifiedTopology:true
+    }
   )
   .then((result) => {
     const server  = app.listen(8080);
